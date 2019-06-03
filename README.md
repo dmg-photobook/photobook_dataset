@@ -1,2 +1,5 @@
-# photobook_dataset
-The raw game transcripts, additional materials and processor for the PhotoBook Dataset
+# The PhotoBook Task and Dataset
+
+Repository for the raw game transcripts, additional materials and processor of the PhotoBook Dataset.
+
+Under construction - coming soon.
