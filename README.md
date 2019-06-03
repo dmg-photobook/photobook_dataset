@@ -2,4 +2,4 @@
 
 Repository for the raw game transcripts, additional materials and processor of the PhotoBook Dataset.
 
-Under construction - coming soon.
+For documentation and further information, please visit [https://dmg-photobook.github.io](https://dmg-photobook.github.io).
