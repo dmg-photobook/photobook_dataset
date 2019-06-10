@@ -1,0 +1,102 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+
+class HistoryModelBlindNoTarget(nn.Module):
+    def __init__(self, vocab_size, embedding_dim, hidden_dim, img_dim):
+        super().__init__()
+        self.embedding_dim = embedding_dim
+        self.hidden_dim = hidden_dim
+        self.img_dim = img_dim
+
+        self.embedding = nn.Embedding(vocab_size, self.embedding_dim, padding_idx = 0)
+
+        self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim, num_layers=1, batch_first=True)
+
+        self.lstm_hist = nn.LSTM(self.embedding_dim, self.hidden_dim, num_layers=1, batch_first=True)
+
+        self.linear = nn.Linear(self.img_dim, int(self.hidden_dim))
+
+        self.linear2 = nn.Linear(self.hidden_dim*2, int(self.hidden_dim))
+
+        self.linear_separate = nn.Linear(self.img_dim, self.hidden_dim)
+
+        self.relu = nn.ReLU()
+
+        self.dropout = nn.Dropout(0.0)
+
+    def forward(self, segment, prev_histories, lengths, separate_images, visual_context, normalize, device):
+        """
+        @param input (torch.FloatTensor): Tensor of size
+                [batch_size, sequence_length, features], containing the input to
+                the rnn
+        @param lengths (torch.LongTensor): Tensor of size [batch_size],
+                containing the sequence lengths per batch
+        @param separate_images #TODO
+        @param visual_context (torch.FloatTensor): #TODO
+        """
+
+        batch_size = segment.shape[0]
+
+        embeds_words = self.embedding(segment) #b, l, d
+
+        embeds_words = self.dropout(embeds_words)
+
+        # pack sequence
+        sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
+        embeds_words = embeds_words[sorted_idx]
+
+        packed_input = nn.utils.rnn.pack_padded_sequence(embeds_words, sorted_lengths, batch_first=True)
+
+        # rnn forward
+        packed_outputs, hidden = self.lstm(packed_input, hx = None)
+
+        # re-pad sequence
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs, batch_first=True)
+
+        # un-sort
+        _, reversed_idx = torch.sort(sorted_idx)
+        outputs = outputs[reversed_idx]
+
+        batch_out_hidden = hidden[0][:, reversed_idx]
+
+        # note that we are not using the image features in this model as we later set
+        # separate_images[b][p] = hist_hidden[0].squeeze() simply the linguistic history
+        separate_images = self.linear_separate(separate_images)
+        separate_images = self.dropout(separate_images)
+
+        #get linguistic history per image specific to that game up to that segment
+
+        for b in range(batch_size):
+
+            prev_hist = prev_histories[b]
+
+            for p in range(len(prev_hist)):
+
+                cur_img_hist = torch.tensor(prev_hist[p]).long().to(device)
+
+                if len(prev_hist[p]) > 0:
+
+                    #encode linguistic background
+
+                    hist_embeds = self.embedding(cur_img_hist).view(1,-1,self.embedding_dim)
+
+                    hist_out, hist_hidden = self.lstm_hist(hist_embeds)
+
+                    separate_images[b][p] = hist_hidden[0].squeeze()  #don't add, but set to exclude visual features
+
+                else:
+                    #no linguistic background, just use image features
+                    pass
+
+        if normalize:
+            separate_images = self.relu(separate_images)
+
+            separate_images = F.normalize(separate_images, p=2, dim=2)
+
+
+        dot = torch.bmm(separate_images, batch_out_hidden.view(batch_size, self.hidden_dim,1))
+
+        return dot
+
