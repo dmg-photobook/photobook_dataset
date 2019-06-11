@@ -1,4 +1,4 @@
-# Photobook-Reference-Chains
+# Photobook Disriminator
 
 Project developed with
 
