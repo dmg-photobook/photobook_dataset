@@ -18,8 +18,6 @@ class HistoryModelBlind(nn.Module):
 
         self.linear = nn.Linear(self.img_dim, int(self.hidden_dim))
 
-        self.linear2 = nn.Linear(self.hidden_dim*2, int(self.hidden_dim))
-
         self.linear_separate = nn.Linear(self.img_dim, self.hidden_dim)
 
         self.relu = nn.ReLU()
