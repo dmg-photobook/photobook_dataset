@@ -18,8 +18,6 @@ class HistoryModelBlindNoTarget(nn.Module):
 
         self.linear = nn.Linear(self.img_dim, int(self.hidden_dim))
 
-        self.linear2 = nn.Linear(self.hidden_dim*2, int(self.hidden_dim))
-
         self.linear_separate = nn.Linear(self.img_dim, self.hidden_dim)
 
         self.relu = nn.ReLU()
@@ -33,8 +31,9 @@ class HistoryModelBlindNoTarget(nn.Module):
                 the rnn
         @param lengths (torch.LongTensor): Tensor of size [batch_size],
                 containing the sequence lengths per batch
-        @param separate_images #TODO
-        @param visual_context (torch.FloatTensor): #TODO
+        @param separate_images (torch.FloatTensor): Values are not used in this model, Tensor of size [batch_size, max_image_set_size, image_feature_dim], image feature vectors for all the images in the context per batch
+        @param visual_context (torch.FloatTensor): NOT USED IN THIS MODEL, Tensor of size [batch_size, image_feature_dim], average image feature vector for all the images in the context per batch
+        @param device (torch.device): device to map the history per image into
         """
 
         batch_size = segment.shape[0]
