@@ -18,6 +18,8 @@ def create_segment_datasets(dialogue_segments, vocab, chain_id=0, method="word2i
     segment_dataset = []
     chain_dataset = []
     for game_id, game_segments in dialogue_segments:
+        if game_id in ["3Y9N9SS8LZ9I159GL3ACP8R77X5D3M3VW04L3ZLU48F9LBWSICQVJ3UAIXX8", "3PB5A5BD0W43E8KUP5EA8A6LTWT7GX38F5OAUN5OAHE4F59BWSTAIM8W67HW"]:
+            continue
         target_segments = defaultdict(lambda: [])
         for round_segments, image_set in game_segments:
             for segment, targets in round_segments:
@@ -27,7 +29,7 @@ def create_segment_datasets(dialogue_segments, vocab, chain_id=0, method="word2i
                     target_segments[target_id].append(len(segment_dataset)-1)
 
         for target, segments in target_segments.items():
-            chain_dataset.append({"chain_id": chain_id, "target": target, "segments": segments, "lengths": [segment_dataset[segment_id]["length"] for segment_id in segments]})
+            chain_dataset.append({"game_id": game_id, "chain_id": chain_id, "target": target, "segments": segments, "lengths": [segment_dataset[segment_id]["length"] for segment_id in segments]})
             chain_id += 1
 
     return segment_dataset, chain_dataset, chain_id
@@ -60,5 +62,6 @@ if __name__ == '__main__':
 
         with open(os.path.join(args.data_path, set_name + "_chains.json"), 'w') as f:
             json.dump(chain_dataset, f)
+
 
     print("Done.")

@@ -5,7 +5,6 @@ from collections import defaultdict
 
 from torch.utils.data import Dataset
 
-# Discriminator models are not using this, instead look at HistoryDataset.py
 
 # Loads a PhotoBook segment chain data set from file
 class ChainDataset(Dataset):
@@ -14,14 +13,14 @@ class ChainDataset(Dataset):
 
         self.data_dir = data_dir
         self.split = split
+        self.segment_file = self.split + '_' + segment_file
 
         # Load a PhotoBook segment chain data set
         with open(os.path.join(self.data_dir, chain_file), 'r') as file:
             self.chains = json.load(file)
 
         # Load an underlying PhotoBook dialogue segment data set
-        segment_file = self.split + '_'  + segment_file
-        with open(os.path.join(self.data_dir, segment_file), 'r') as file:
+        with open(os.path.join(self.data_dir, self.segment_file), 'r') as file:
             self.segments = json.load(file)
 
         # Load pre-defined image features
@@ -35,6 +34,7 @@ class ChainDataset(Dataset):
                 continue
 
             # load first source segment
+            source_game_id = chain['game_id']
             source = self.load_segment(chain['segments'][0])
 
             reference_image = source['target_image']
@@ -54,6 +54,7 @@ class ChainDataset(Dataset):
                     continue
 
                 self.data[len(self.data)] = {
+                    'game_id' : source_game_id,
                     'chain_id': chain_id,
                     'segment_id': segment_id,
                     'reference_image': reference_image,
