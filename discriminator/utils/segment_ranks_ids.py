@@ -8,7 +8,7 @@ with open('../data/test_segments.json', 'r') as file:
 with open('../data/test_chains.json', 'r') as file:
     test = json.load(file)
 
-vocab = Vocab('vocab.csv', 3)
+vocab = Vocab('../data/vocab.csv', 3)
 
 # given an img, provides the chains for which it was the target
 
@@ -31,7 +31,7 @@ for c in test:
         if s not in id_list:
             id_list.append(s)
 
-with open('test_seg_ids.json', 'w') as file:
+with open('../test_seg_ids.json', 'w') as file:
     json.dump(id_list, file)
 
 seg2ranks = dict()
@@ -50,7 +50,7 @@ for c in test:
 
 # all the ranks a segment is positioned
 # in different chains (hence, there could be multiples of the same position)
-with open ('test_seg2ranks.json', 'w') as file:
+with open ('../test_seg2ranks.json', 'w') as file:
     json.dump(seg2ranks, file)
 
 
@@ -62,7 +62,7 @@ with open('../data/val_segments.json', 'r') as file:
 with open('../data/val_chains.json', 'r') as file:
     val = json.load(file)
 
-vocab = Vocab('vocab.csv', 3)
+vocab = Vocab('../data/vocab.csv', 3)
 
 target2chains = defaultdict(list)
 
@@ -81,7 +81,7 @@ for c in val:
         if s not in id_list:
             id_list.append(s)
 
-with open('val_seg_ids.json', 'w') as file:
+with open('../val_seg_ids.json', 'w') as file:
     json.dump(id_list, file)
 
 seg2ranks = dict()
@@ -98,7 +98,6 @@ for c in val:
         else:
             seg2ranks[seg_id] = [rank]
 
-with open('val_seg2ranks.json', 'w') as file:
+with open('../val_seg2ranks.json', 'w') as file:
     json.dump(seg2ranks, file)
-
 
