@@ -6,7 +6,6 @@ import numpy as np
 
 import torch
 from torch import nn
-from torch import optim
 from models.model_nohistory import DiscriminatoryModelBlind
 from models.model_history import HistoryModelBlind
 from models.model_history_noimg import HistoryModelBlindNoTarget
@@ -37,15 +36,13 @@ def load_model(file, model):
     hidden_dim = 512
     img_dim = 2048
     model = model(len_vocab, embedding_dim, hidden_dim, img_dim)
-    optimizer = optim.Adam(model.parameters())
     checkpoint = torch.load(file, map_location='cpu')
     model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
     accuracy = checkpoint['accuracy']
     args_train = checkpoint['args']
-    return model,optimizer,epoch,loss,accuracy, args_train
+    return model,epoch,loss,accuracy, args_train
 
 
 def mask_attn(scores, actual_num_images, max_num_images, device):
@@ -73,19 +70,19 @@ for model_file in model_files:
     print(model_file)
 
     if model_name_abbrv[model_file]=='No history':
-        model,optimizer,epoch,loss, accuracy, args_train = load_model(model_file, DiscriminatoryModelBlind)
+        model,epoch,loss, accuracy, args_train = load_model(model_file, DiscriminatoryModelBlind)
         color_plot = 'blue'
         line_plot = '-'
         marker_plot = ''
 
     elif model_name_abbrv[model_file] == 'History':
-        model, optimizer, epoch, loss, accuracy, args_train = load_model(model_file, HistoryModelBlind)
+        model, epoch, loss, accuracy, args_train = load_model(model_file, HistoryModelBlind)
         color_plot = 'red'
         line_plot = '--'
         marker_plot = ''
 
     elif model_name_abbrv[model_file] == 'No image':
-        model, optimizer, epoch, loss, accuracy, args_train = load_model(model_file, HistoryModelBlindNoTarget)
+        model, epoch, loss, accuracy, args_train = load_model(model_file, HistoryModelBlindNoTarget)
         color_plot = 'green'
         line_plot = ':'
         marker_plot = ''
