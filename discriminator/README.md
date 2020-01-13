@@ -1,4 +1,4 @@
-# Photobook Disriminator
+# Photobook Discriminator
 
 Project developed with
 
