@@ -3,7 +3,7 @@ import pickle
 import csv
 
 from collections import Counter
-from utils.UtteranceTokenizer import UtteranceTokenizer
+from UtteranceTokenizer import UtteranceTokenizer
 
 
 class Vocab():
