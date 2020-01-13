@@ -42,7 +42,7 @@ def mask_attn(scores, actual_num_images, max_num_images, device):
     return scores
 
 
-def save_model(model, epoch, accuracy, loss, optimizer, args, metric, timestamp):
+def save_model(model, epoch, accuracy, loss, args, metric, timestamp):
 
     file_name = 'model_history_blind_' + metric + '_' + timestamp + '.pkl'
 
@@ -53,7 +53,6 @@ def save_model(model, epoch, accuracy, loss, optimizer, args, metric, timestamp)
         'args': args,
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
         'loss': loss
     }, file_name)
 
@@ -63,7 +62,7 @@ def save_model(model, epoch, accuracy, loss, optimizer, args, metric, timestamp)
 # there are hard-coded values regarding that
 
 def evaluate(split_data_loader, dataset, breaking, normalize, mask, img_dim,\
-             model, epoch, optimizer, args, timestamp, best_accuracy, best_loss, isValidation, weight, device):
+             model, epoch, args, timestamp, best_accuracy, best_loss, isValidation, weight, device):
 
     losses = []
     count = 0
@@ -238,11 +237,11 @@ def evaluate(split_data_loader, dataset, breaking, normalize, mask, img_dim,\
     if isValidation:
         if mean_loss < best_loss:
             best_loss = mean_loss
-            save_model(model, epoch, accs_to_write, mean_loss, optimizer, args, 'loss', timestamp)
+            save_model(model, epoch, accs_to_write, mean_loss, args, 'loss', timestamp)
 
         if accs_to_write > best_accuracy:
             best_accuracy = accs_to_write
-            save_model(model, epoch, accs_to_write, mean_loss, optimizer, args, 'accs', timestamp)
+            save_model(model, epoch, accs_to_write, mean_loss, args, 'accs', timestamp)
 
         return best_accuracy, best_loss, f1, mean_loss
 
@@ -801,13 +800,13 @@ if __name__ == '__main__':
              isValidation = False
              print('\nTrain Eval')
              evaluate(training_loader, trainset, breaking, normalize, mask, img_dim, \
-                      model, epoch, optimizer, args, timestamp, best_accuracy, best_loss, isValidation, weight, device)
+                      model, epoch, args, timestamp, best_accuracy, best_loss, isValidation, weight, device)
 
              isValidation = True
              print('\nVal Eval')
 
              best_accuracy, best_loss, current_f1, current_loss = evaluate(val_loader, valset, breaking, normalize, mask, img_dim, \
-                                                 model, epoch, optimizer, args, timestamp, best_accuracy, best_loss,
+                                                 model, epoch, args, timestamp, best_accuracy, best_loss,
                                                  isValidation, weight, device)
 
              print('\nBest', best_accuracy, best_loss) #validset
