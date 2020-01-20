@@ -11,7 +11,7 @@ Download the pre-trained models from https://github.com/dmg-photobook/photobook_
 
 Put the models in the discriminator folder.
 
-Unzip [discriminator_data_full.zip](https://github.com/dmg-photobook/photobook_dataset/blob/master/discriminator_data_full.zip), rename the extracted folder to 'data' and move it under the discriminator folder.
+Unzip [discriminator_data_full.zip](https://github.com/dmg-photobook/photobook_dataset/blob/master/discriminator_data_full.zip), move the 'data' folder under the discriminator folder.
 
 If you would like to run the gold evaluation scripts, you would need 2 additional files:
 * test_seg2ranks.json
