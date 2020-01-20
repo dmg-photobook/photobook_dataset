@@ -1,4 +1,4 @@
-# Photobook Disriminator
+# Photobook Discriminator
 
 Project developed with
 
@@ -6,6 +6,20 @@ Project developed with
 * PyTorch 0.4
 * NLTK
 * NumPy 1.16
+
+Download the pre-trained models from https://github.com/dmg-photobook/photobook_acl_models.
+
+Put the models in the discriminator folder.
+
+Unzip [discriminator_data_full.zip](https://github.com/dmg-photobook/photobook_dataset/blob/master/discriminator_data_full.zip), move the 'data' folder under the discriminator folder.
+
+If you would like to run the gold evaluation scripts, you would need 2 additional files:
+* test_seg2ranks.json
+* test_seg_ids.json
+
+These will help you get the ordered IDs of segments for history models (the order of encounter with the segments as they come in the chains).
+
+To generate these files, you can use the segment_ranks_ids.py script.
 
 ## Utils
 

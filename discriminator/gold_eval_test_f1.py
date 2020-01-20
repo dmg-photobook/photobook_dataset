@@ -7,7 +7,6 @@ import numpy as np
 
 import torch
 from torch import nn
-from torch import optim
 from models.model_nohistory import DiscriminatoryModelBlind
 from models.model_history import HistoryModelBlind
 
@@ -30,21 +29,19 @@ def get_f1(prec, recall, beta):
     else:
         return (1 + np.power(beta,2)) *((prec*recall)/(np.power(beta,2)*prec+recall))
 
-def load_model(file, model):
+def load_model(file, model, device):
     len_vocab = 3424
     embedding_dim = 512
     hidden_dim = 512
     img_dim = 2048
-    model = model(len_vocab, embedding_dim, hidden_dim, img_dim)
-    optimizer = optim.Adam(model.parameters())
-    checkpoint = torch.load(file, map_location='cpu')
+    model = model(len_vocab, embedding_dim, hidden_dim, img_dim).to(device)
+    checkpoint = torch.load(file, map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
     accuracy = checkpoint['accuracy']
     args_train = checkpoint['args']
-    return model,optimizer,epoch,loss,accuracy, args_train
+    return model,epoch,loss,accuracy, args_train
 
 def mask_attn(scores, actual_num_images, max_num_images, device):
     masks = []
@@ -71,12 +68,17 @@ plt.figure(figsize=(30, 10))
 for model_file in model_files:
 
     print(model_file)
+    
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
 
     if model_name_abbrv[model_file]=='No history':
-        model,optimizer,epoch,loss, accuracy, args_train = load_model(model_file, DiscriminatoryModelBlind)
+        model,epoch,loss, accuracy, args_train = load_model(model_file, DiscriminatoryModelBlind, device)
 
     elif model_name_abbrv[model_file] == 'History':
-        model, optimizer, epoch, loss, accuracy, args_train = load_model(model_file, HistoryModelBlind)
+        model, epoch, loss, accuracy, args_train = load_model(model_file, HistoryModelBlind, device)
 
 
     print(accuracy)
@@ -99,11 +101,6 @@ for model_file in model_files:
     hidden_dim = 512
     img_dim = 2048
     threshold = 0.5
-
-    if torch.cuda.is_available():
-        device = torch.device('cuda')
-    else:
-        device = torch.device('cpu')
 
     shuffle = args.shuffle
     normalize = args.normalize
